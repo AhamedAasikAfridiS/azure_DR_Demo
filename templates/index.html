@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Monolithic Chatbot</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f2f1; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .chat-container { width: 100%; max-width: 650px; height: 85vh; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; }
+        .chat-header { background: #0078d4; color: white; padding: 20px; font-size: 1.2rem; font-weight: 600; text-align: center; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background-color: #faf9f8; }
+        .message { max-width: 75%; padding: 12px 16px; border-radius: 8px; line-height: 1.5; font-size: 0.95rem; word-wrap: break-word; }
+        .message.user { align-self: flex-end; background-color: #0078d4; color: white; border-bottom-right-radius: 2px; }
+        .message.assistant { align-self: flex-start; background-color: #f1f1f1; color: #323130; border-bottom-left-radius: 2px; border: 1px solid #edebe9; }
+        .chat-input-area { display: flex; border-top: 1px solid #edebe9; padding: 15px; background: #fff; gap: 10px; }
+        .chat-input-area input { flex: 1; padding: 12px; border: 1px solid #a19f9d; border-radius: 6px; outline: none; font-size: 1rem; }
+        .chat-input-area input:focus { border-color: #0078d4; }
+        .chat-input-area button { background: #0078d4; color: white; border: none; padding: 0 24px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background 0.2s; }
+        .chat-input-area button:hover { background: #005a9e; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">Azure AI Assistant</div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="message assistant">Hello! I am connected to Azure OpenAI and Postgres. How can I help you today?</div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="user-input" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    // Generates a random session string to keep track of this specific tab's chat context
+    const sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+    const messagesContainer = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+
+    function appendMessage(role, text) {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', role);
+        msgDiv.innerText = text;
+        messagesContainer.appendChild(msgDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        appendMessage('user', text);
+        userInput.value = '';
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId, message: text })
+            });
+            
+            const data = await response.json();
+            if (data.response) {
+                appendMessage('assistant', data.response);
+            } else {
+                appendMessage('assistant', 'Error: ' + (data.error || 'Unknown error occurred'));
+            }
+        } catch (error) {
+            appendMessage('assistant', 'Error: Could not connect to backend server.');
+            console.error(error);
+        }
+    }
+</script>
+</body>
+</html>

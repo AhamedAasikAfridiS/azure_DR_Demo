@@ -1,0 +1,6 @@
+flask
+openai
+azure-identity
+azure-keyvault-secrets
+psycopg2-binary
+python-dotenv
