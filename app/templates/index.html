@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <div>
+            <h2>Employee Records</h2>
+            <p>Use this data to test PITR, geo-restore, and replica promotion.</p>
+        </div>
+
+        <a class="button primary" href="/employees/new">+ Add Employee</a>
+    </div>
+
+    <div class="actions">
+        <form method="post" action="/seed">
+            <button class="button" type="submit">Seed Demo Data</button>
+        </form>
+
+        <form 
+            method="post" 
+            action="/delete-all"
+            onsubmit="return confirm('This will delete all employee records. Use only for DR demo. Continue?');"
+        >
+            <button class="button danger" type="submit">Delete All Records</button>
+        </form>
+    </div>
+
+    {% if employees %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Created At</th>
+                <th class="right">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for employee in employees %}
+            <tr>
+                <td>{{ employee.id }}</td>
+                <td>{{ employee.name }}</td>
+                <td>{{ employee.role }}</td>
+                <td>{{ employee.department }}</td>
+                <td>{{ employee.created_at }}</td>
+                <td class="right">
+                    <a class="button small" href="/employees/{{ employee.id }}/edit">Edit</a>
+
+                    <form 
+                        class="inline" 
+                        method="post" 
+                        action="/employees/{{ employee.id }}/delete"
+                        onsubmit="return confirm('Delete this record?');"
+                    >
+                        <button class="button small danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">
+        <h3>No records found</h3>
+        <p>Add employees manually or click Seed Demo Data.</p>
+    </div>
+    {% endif %}
+</section>
+
+<section class="note">
+    <h3>How to use this UI for DR demo</h3>
+
+    <ol>
+        <li>Add or seed records while connected to the primary PostgreSQL server.</li>
+        <li>Delete or edit records to simulate a mistake.</li>
+        <li>Perform Point-in-Time Restore, geo-restore, or replica promotion.</li>
+        <li>Change the app DB host to the restored or promoted PostgreSQL server.</li>
+        <li>Restart the app and verify records in this UI.</li>
+    </ol>
+</section>
+{% endblock %}

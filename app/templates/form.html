@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card form-card">
+    {% if mode == "create" %}
+        <h2>Add Employee</h2>
+        <form method="post" action="/employees">
+    {% else %}
+        <h2>Edit Employee</h2>
+        <form method="post" action="/employees/{{ employee.id }}">
+    {% endif %}
+
+        <label>
+            Name
+            <input 
+                type="text" 
+                name="name" 
+                value="{{ employee.name if employee else '' }}" 
+                required
+            >
+        </label>
+
+        <label>
+            Role
+            <input 
+                type="text" 
+                name="role" 
+                value="{{ employee.role if employee else '' }}" 
+                required
+            >
+        </label>
+
+        <label>
+            Department
+            <input 
+                type="text" 
+                name="department" 
+                value="{{ employee.department if employee else 'Engineering' }}" 
+                required
+            >
+        </label>
+
+        <div class="form-actions">
+            <button class="button primary" type="submit">Save</button>
+            <a class="button" href="/">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

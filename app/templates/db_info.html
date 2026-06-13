@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card">
+    <h2>Database Connection Info</h2>
+    <p>Use this page during DR demo to prove which PostgreSQL server the app is connected to.</p>
+
+    {% if info.connected %}
+        <div class="status ok">Connected</div>
+    {% else %}
+        <div class="status bad">Database Connection Failed</div>
+    {% endif %}
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Configured Host</th>
+                <td>{{ info.configured_host }}</td>
+            </tr>
+
+            <tr>
+                <th>Configured Database</th>
+                <td>{{ info.configured_database }}</td>
+            </tr>
+
+            <tr>
+                <th>Configured User</th>
+                <td>{{ info.configured_user }}</td>
+            </tr>
+
+            {% if info.connected %}
+            <tr>
+                <th>Actual Database</th>
+                <td>{{ info.database_name }}</td>
+            </tr>
+
+            <tr>
+                <th>Current User</th>
+                <td>{{ info.current_user }}</td>
+            </tr>
+
+            <tr>
+                <th>Server IP</th>
+                <td>{{ info.server_ip }}</td>
+            </tr>
+
+            <tr>
+                <th>Server Port</th>
+                <td>{{ info.server_port }}</td>
+            </tr>
+
+            <tr>
+                <th>PostgreSQL Version</th>
+                <td>{{ info.version }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <th>Error</th>
+                <td><pre>{{ info.error }}</pre></td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
